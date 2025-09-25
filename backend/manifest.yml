@@ -1,0 +1,33 @@
+name: TomatoTracker
+description: An app to track and catalog your favorite tomato varieties.
+
+entities:
+  User:
+    authenticable: true
+    properties:
+      - { name: name, type: string, validation: { required: true } }
+      - { name: email, type: email, validation: { required: true, unique: true } }
+      - { name: role, type: choice, options: { values: [admin, user], default: user } }
+    access_policies:
+      - role: admin
+        permissions: [create, read, update, delete]
+      - role: user
+        permissions: [read, update]
+        condition: "user.id === id"
+
+  Tomato:
+    properties:
+      - { name: name, type: string, validation: { required: true } }
+      - { name: variety, type: string }
+      - { name: description, type: text }
+      - { name: color, type: choice, options: { values: [Red, Yellow, Green, Purple, Orange, Other], default: Red } }
+      - { name: rating, type: number, validation: { min: 1, max: 5 } }
+      - { name: image, type: file, options: { sizes: { thumbnail: { width: 400, height: 400 } } } }
+    belongsTo:
+      - { name: owner, entity: User }
+    access_policies:
+      - role: admin
+        permissions: [create, read, update, delete]
+      - role: user
+        permissions: [create, read, update, delete]
+        condition: "user.id === owner.id"
